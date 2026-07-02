@@ -1,4 +1,4 @@
-import psycopg2
+import re
 from connect import get_connection
 
 
@@ -7,58 +7,53 @@ class PhoneBook:
         pass
 
     def add_contact(self):
-        name = input("Enter name: ").strip()
-        phone = input("Enter phone: ").strip()
+        name = input("Enter name: ")
+        phone = input("Enter phone: ")
 
         conn = get_connection()
         cur = conn.cursor()
-
         cur.execute("CALL upsert_contact(%s::text, %s::text)", (name, phone))
 
         conn.commit()
         cur.close()
         conn.close()
 
-        print("Contact added or updated.")
+    print("Contact added or updated.")
 
     def add_many_contacts(self):
-        names = []
-        phones = []
+       names = []
+       phones = []
 
-        count = int(input("How many contacts do you want to add? ").strip())
+       count = int(input("How many contacts do you want to add? ").strip())
 
-        for i in range(count):
+       for i in range(count):
             print(f"\nContact {i + 1}")
             nm = input("Name: ").strip()
             ph = input("Phone: ").strip()
             names.append(nm)
             phones.append(ph)
 
-        conn = get_connection()
-        cur = conn.cursor()
+       conn = get_connection()
+       cur = conn.cursor()
 
-        cur.execute(
+       cur.execute(
             "SELECT * FROM get_invalid_contacts(%s::text[], %s::text[])",
             (names, phones)
         )
-        bad_rows = cur.fetchall()
+       bad_rows = cur.fetchall()
 
-        if len(bad_rows) > 0:
+       if len(bad_rows) > 0:
             print("\nIncorrect data:")
             for one in bad_rows:
                 print(one)
 
-        cur.execute(
+       cur.execute(
             "CALL insert_many_contacts(%s::text[], %s::text[])",
             (names, phones)
         )
-
-        conn.commit()
-        cur.close()
-        conn.close()
-
-        print("Contacts import finished.")
-
+       
+       print("Contacts import finished.")
+       
     def show_all(self):
         conn = get_connection()
         cur = conn.cursor()
@@ -76,7 +71,7 @@ class PhoneBook:
         conn.close()
 
     def find_by_pattern(self):
-        patt = input("Enter pattern: ").strip()
+        patt = input("Enter pattern: ")
 
         conn = get_connection()
         cur = conn.cursor()
@@ -94,8 +89,8 @@ class PhoneBook:
         conn.close()
 
     def show_paginated(self):
-        lim = int(input("Enter limit: ").strip())
-        offs = int(input("Enter offset: ").strip())
+        lim = int(input("Enter limit: "))
+        offs = int(input("Enter offset: "))
 
         conn = get_connection()
         cur = conn.cursor()
@@ -116,7 +111,7 @@ class PhoneBook:
         conn.close()
 
     def remove_contact(self):
-        val = input("Enter name or phone to delete: ").strip()
+        val = input("Enter name or phone to delete: ")
 
         conn = get_connection()
         cur = conn.cursor()
@@ -140,7 +135,7 @@ class PhoneBook:
             print("6 - Delete by name or phone")
             print("0 - Exit")
 
-            choice = input("Choose: ").strip()
+            choice = input("Choose: ")
 
             if choice == "1":
                 self.add_contact()
@@ -155,7 +150,6 @@ class PhoneBook:
             elif choice == "6":
                 self.remove_contact()
             elif choice == "0":
-                print("Bye")
                 break
             else:
                 print("Wrong choice")

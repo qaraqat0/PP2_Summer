@@ -1,7 +1,3 @@
-DROP PROCEDURE IF EXISTS upsert_contact(TEXT, TEXT);
-DROP PROCEDURE IF EXISTS insert_many_contacts(TEXT[], TEXT[]);
-DROP PROCEDURE IF EXISTS delete_contact(TEXT);
-
 CREATE OR REPLACE PROCEDURE upsert_contact(p_name TEXT, p_phone TEXT)
 LANGUAGE plpgsql
 AS $$
