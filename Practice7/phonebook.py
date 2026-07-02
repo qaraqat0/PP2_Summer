@@ -1,6 +1,5 @@
 from connect import get_connection
 import csv
-import os
 
 def add_contact():
     name = input("Enter name: ").strip()
