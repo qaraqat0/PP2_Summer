@@ -25,9 +25,9 @@ def import_csv():
     conn = get_connection()
     cur = conn.cursor()
 
-    with open(file_name, "r", encoding="utf-8") as f:
+    with open(file_name, "r") as f:
         reader = csv.reader(f)
-        next(reader, None)
+        
 
         for row in reader:
             if len(row) >= 2:
@@ -68,9 +68,7 @@ def find_by_name():
     cur = conn.cursor()
 
     cur.execute(
-        "SELECT * FROM contacts WHERE first_name ILIKE %s ORDER BY id",
-        ("%" + part + "%",)
-    )
+        "SELECT * FROM contacts WHERE first_name = %s", (part,))
 
     rows = cur.fetchall()
 
@@ -82,6 +80,7 @@ def find_by_name():
     cur.close()
     conn.close()
 
+
 def find_by_prefix():
     prefix = input("Enter phone prefix: ").strip()
 
@@ -92,14 +91,7 @@ def find_by_prefix():
         "SELECT * FROM contacts WHERE phone LIKE %s ORDER BY id",
         (prefix + "%",)
     )
-
-    rows = cur.fetchall()
-
-    if len(rows) == 0:
-        print("Nothing found.")
-    else:
-        for row in rows:
-            print(row)
+    print(cur.fetchall())
 
     cur.close()
     conn.close()
