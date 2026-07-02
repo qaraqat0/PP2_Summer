@@ -23,31 +23,9 @@ LANGUAGE plpgsql
 AS $$
 DECLARE
     ii INT;
-    nm TEXT;
-    ph TEXT;
 BEGIN
-    IF array_length(p_names, 1) IS DISTINCT FROM array_length(p_phones, 1) THEN
-        RAISE EXCEPTION 'Arrays must have the same length';
-    END IF;
-
     FOR ii IN 1..array_length(p_names, 1) LOOP
-        nm := trim(p_names[ii]);
-        ph := trim(p_phones[ii]);
-
-        IF ph ~ '^\+?[0-9]{10,15}$' THEN
-            IF EXISTS (
-                SELECT 1
-                FROM contacts
-                WHERE first_name = nm
-            ) THEN
-                UPDATE contacts
-                SET phone = ph
-                WHERE first_name = nm;
-            ELSE
-                INSERT INTO contacts(first_name, phone)
-                VALUES (nm, ph);
-            END IF;
-        END IF;
+        CALL upsert_contact(p_names[ii], p_phones[ii]);
     END LOOP;
 END;
 $$;
