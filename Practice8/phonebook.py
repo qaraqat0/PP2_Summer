@@ -21,38 +21,40 @@ class PhoneBook:
     print("Contact added or updated.")
 
     def add_many_contacts(self):
-       names = []
-       phones = []
+        names = []
+        phones = []
+        bad = []
 
-       count = int(input("How many contacts do you want to add? ").strip())
+        count = int(input("How many contacts do you want to add? "))
 
-       for i in range(count):
+        for i in range(count):
             print(f"\nContact {i + 1}")
-            nm = input("Name: ").strip()
-            ph = input("Phone: ").strip()
-            names.append(nm)
-            phones.append(ph)
+            nm = input("Name: ")
+            ph = input("Phone: ")
 
-       conn = get_connection()
-       cur = conn.cursor()
+            if re.match(r'^\+?[0-9]{10,15}$', ph):
+                names.append(nm)
+                phones.append(ph)
+            else:
+                bad.append((nm, ph))
 
-       cur.execute(
-            "SELECT * FROM get_invalid_contacts(%s::text[], %s::text[])",
-            (names, phones)
-        )
-       bad_rows = cur.fetchall()
+        if bad:
+            print("\nIncorrect data (not added):")
+        for nm, ph in bad:
+            print(nm, ph)
 
-       if len(bad_rows) > 0:
-            print("\nIncorrect data:")
-            for one in bad_rows:
-                print(one)
+        if names:
+            conn = get_connection()
+            cur = conn.cursor()
+            cur.execute(
+                "CALL insert_many_contacts(%s::text[], %s::text[])",
+                (names, phones)
+            )
+            conn.commit()
+            cur.close()
+            conn.close()
 
-       cur.execute(
-            "CALL insert_many_contacts(%s::text[], %s::text[])",
-            (names, phones)
-        )
-       
-       print("Contacts import finished.")
+        print("Contacts import finished.")
        
     def show_all(self):
         conn = get_connection()
