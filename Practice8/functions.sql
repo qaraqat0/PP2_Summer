@@ -10,8 +10,8 @@ BEGIN
     RETURN QUERY
     SELECT c.id, c.first_name, c.phone
     FROM contacts c
-    WHERE c.first_name ILIKE '%' || p_pattern || '%'
-       OR c.phone ILIKE '%' || p_pattern || '%'
+    WHERE c.first_name ILIKE p_pattern
+       OR c.phone ILIKE p_pattern
     ORDER BY c.id;
 END;
 $$;
